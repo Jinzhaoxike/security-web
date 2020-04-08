@@ -1,0 +1,32 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration
+logging:
+  level:
+    ## 打印请求及应答日志
+    org.springframework.http.codec.json.Jackson2JsonDecoder: debug
+    org.springframework.http.codec.json.Jackson2JsonEncoder: debug
+##
+pers:
+  security:
+    permit-url:
+      - '/login'
+      - '/captcha/image'
+      - '/captcha/sms'
+    cors:
+      enabled: true
+    captcha:
+      image:
+        ## 单位秒
+        expire-time: 140
+      sms:
+        ## 单位秒
+        expire-time: 150
+      kaptcha-config:
+        kaptcha.textproducer.char.length: 4
+    jwt:
+      ## 单位秒
+      expire-time: 120
+      sign-key: E10ADC3949BA59ABBE56E057F20F883E
+      des-key: 12345678
