@@ -8,18 +8,18 @@ package pers.wesley.common.exception;
 public class NotFoundException extends BaseException {
 
     public NotFoundException() {
-        super(ErrorCodeEnum.NOT_FOUND);
+        super(ErrorCodeEnum.NOT_FOUND_ERROR);
     }
 
     public NotFoundException(String message) {
-        super(ErrorCodeEnum.NOT_FOUND, message);
+        super(ErrorCodeEnum.NOT_FOUND_ERROR, message);
     }
 
     public NotFoundException(String[] args) {
-        super(ErrorCodeEnum.NOT_FOUND, args);
+        super(ErrorCodeEnum.NOT_FOUND_ERROR, args);
     }
 
     public NotFoundException(String message, String[] args) {
-        super(ErrorCodeEnum.NOT_FOUND, message, args);
+        super(ErrorCodeEnum.NOT_FOUND_ERROR, message, args);
     }
 }

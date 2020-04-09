@@ -8,18 +8,18 @@ package pers.wesley.common.exception;
 public class ExistsException extends BaseException {
 
     public ExistsException() {
-        super(ErrorCodeEnum.EXISTS);
+        super(ErrorCodeEnum.EXISTS_ERROR);
     }
 
     public ExistsException(String message) {
-        super(ErrorCodeEnum.EXISTS, message);
+        super(ErrorCodeEnum.EXISTS_ERROR, message);
     }
 
     public ExistsException(String[] args) {
-        super(ErrorCodeEnum.EXISTS, args);
+        super(ErrorCodeEnum.EXISTS_ERROR, args);
     }
 
     public ExistsException(String message, String[] args) {
-        super(ErrorCodeEnum.EXISTS, message, args);
+        super(ErrorCodeEnum.EXISTS_ERROR, message, args);
     }
 }

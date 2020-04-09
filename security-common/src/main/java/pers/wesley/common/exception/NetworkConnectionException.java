@@ -8,18 +8,18 @@ package pers.wesley.common.exception;
 public class NetworkConnectionException extends BaseException {
 
     public NetworkConnectionException() {
-        super(ErrorCodeEnum.NETWORK_CONNECTION);
+        super(ErrorCodeEnum.NETWORK_CONNECTION_ERROR);
     }
 
     public NetworkConnectionException(String message) {
-        super(ErrorCodeEnum.NETWORK_CONNECTION, message);
+        super(ErrorCodeEnum.NETWORK_CONNECTION_ERROR, message);
     }
 
     public NetworkConnectionException(String[] args) {
-        super(ErrorCodeEnum.NETWORK_CONNECTION, args);
+        super(ErrorCodeEnum.NETWORK_CONNECTION_ERROR, args);
     }
 
     public NetworkConnectionException(String message, String[] args) {
-        super(ErrorCodeEnum.NETWORK_CONNECTION, message, args);
+        super(ErrorCodeEnum.NETWORK_CONNECTION_ERROR, message, args);
     }
 }

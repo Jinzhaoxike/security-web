@@ -36,7 +36,6 @@ public class JwtTokenGenerate {
 
         Claims claims = Jwts.claims();
         claims.put("userId", DesUtils.encrypt(userId, jwtProperties.getDesKey()));
-
         LocalDateTime currentTime = LocalDateTime.now();
         String token = Jwts.builder()
                 .setClaims(claims)

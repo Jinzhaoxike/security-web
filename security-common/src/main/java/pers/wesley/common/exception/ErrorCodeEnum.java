@@ -14,15 +14,15 @@ public enum ErrorCodeEnum {
     /**
      * 未找到信息
      */
-    NOT_FOUND("未找到{}"),
+    NOT_FOUND_ERROR("未找到{}"),
     /**
      * 已存在
      */
-    EXISTS("{}已存在"),
+    EXISTS_ERROR("{}已存在"),
     /**
      * 网络连接
      */
-    NETWORK_CONNECTION("请求{}失败，{}"),
+    NETWORK_CONNECTION_ERROR("请求{}失败，{}"),
     /**
      * 系统未知异常
      */
@@ -42,11 +42,15 @@ public enum ErrorCodeEnum {
     /**
      * 加密错误
      */
-    ENCRYPT("[{}]加密错误"),
+    ENCRYPT_ERROR("[{}]加密错误"),
     /**
      * 解密错误
      */
-    DECRYPT("[{}]解密错误");
+    DECRYPT_ERROR("[{}]解密错误"),
+    /**
+     * 鉴权错误
+     */
+    AUTHENTICATION_ERROR("鉴权错误，{}");
 
     private String message;
 

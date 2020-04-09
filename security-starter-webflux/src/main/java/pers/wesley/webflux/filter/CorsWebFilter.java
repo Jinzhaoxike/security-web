@@ -14,7 +14,7 @@ import pers.wesley.common.CorsProperties;
 import reactor.core.publisher.Mono;
 
 /**
- * @Description : 跨域设置
+ * @Description : 跨域过滤器
  * @Author : jinzhaoxike91@outlook.com
  * @Create : 2020/04/08 10:56
  */

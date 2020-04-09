@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +52,32 @@ public class SecurityWebfluxExceptionHandler {
         }
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         return ErrorResponse.of(baseException);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseBody
+    public ErrorResponse exception(AuthenticationException e, ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        BaseException be;
+        if (e instanceof BadCredentialsException) {
+            be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "用户名或密码错误", e);
+        } else if (e instanceof UsernameNotFoundException) {
+            be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "用户名不存在", e);
+        } else if (e instanceof DisabledException) {
+            be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "账户已禁用", e);
+        } else if (e instanceof LockedException) {
+            be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "账户已锁定", e);
+        } else if (e instanceof AccountExpiredException) {
+            be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "账户已过期", e);
+        } else if (e instanceof CredentialsExpiredException) {
+            be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "账户凭证已过期", e);
+        } else {
+            log.error("鉴权异常", e);
+            be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "未知错误", e);
+        }
+        return ErrorResponse.of(be);
     }
 
     @ExceptionHandler(Exception.class)

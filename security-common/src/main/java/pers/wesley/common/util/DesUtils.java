@@ -43,7 +43,7 @@ public abstract class DesUtils {
             final byte[] decryptByte = content.getBytes(CHARSET);
             return new String(Base64.getEncoder().encode(getCipher(Cipher.ENCRYPT_MODE, desKey, decryptByte)));
         } catch (Exception e) {
-            throw new BaseException(ErrorCodeEnum.ENCRYPT, new String[] {"des"}, e);
+            throw new BaseException(ErrorCodeEnum.ENCRYPT_ERROR, new String[] {"des"}, e);
         }
     }
 
@@ -58,7 +58,7 @@ public abstract class DesUtils {
             final byte[] encryptByte = Base64.getDecoder().decode(content);
             return new String(getCipher(Cipher.DECRYPT_MODE, desKey, encryptByte), CHARSET);
         } catch (Exception e) {
-            throw new BaseException(ErrorCodeEnum.DECRYPT, new String[] {"des"}, e);
+            throw new BaseException(ErrorCodeEnum.DECRYPT_ERROR, new String[] {"des"}, e);
         }
     }
 
