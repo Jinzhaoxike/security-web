@@ -48,6 +48,10 @@ public enum ErrorCodeEnum {
      */
     DECRYPT_ERROR("[{}]解密错误"),
     /**
+     * json转换错误
+     */
+    JSON_ERROR("json转换错误"),
+    /**
      * 鉴权错误
      */
     AUTHENTICATION_ERROR("鉴权错误，{}");

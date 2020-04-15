@@ -29,6 +29,10 @@ public class User implements UserDetails, CredentialsContainer {
      */
     private final String username;
     /**
+     * 用户昵称
+     */
+    private final String nickname;
+    /**
      * 授权资源权限
      */
     private final Set<GrantedAuthority> authorities;
@@ -55,13 +59,15 @@ public class User implements UserDetails, CredentialsContainer {
 
     public User(String username,
                 String password,
+                String nickname,
                 Collection<? extends GrantedAuthority> authorities,
                 Map<String, Object> reserve) {
-        this(username, password, true, true, true, true, authorities, reserve);
+        this(username, password, nickname, true, true, true, true, authorities, reserve);
     }
 
     public User(String username,
                 String password,
+                String nickname,
                 boolean enabled,
                 boolean accountNonExpired,
                 boolean credentialsNonExpired,
@@ -70,6 +76,7 @@ public class User implements UserDetails, CredentialsContainer {
                 Map<String, Object> reserve) {
         this.username = username;
         this.password = password;
+        this.nickname = nickname;
         this.enabled = enabled;
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
@@ -104,6 +111,7 @@ public class User implements UserDetails, CredentialsContainer {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
         sb.append("Username: ").append(this.username).append("; ");
+        sb.append("Nickname: ").append(this.nickname).append("; ");
         sb.append("Password: [PROTECTED]; ");
         sb.append("Enabled: ").append(this.enabled).append("; ");
         sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
@@ -196,6 +204,7 @@ public class User implements UserDetails, CredentialsContainer {
         if (userDetails instanceof User) {
             User userDetail = (User) userDetails;
             userBuilder.reserve(userDetail.getReserve());
+            userBuilder.nickname(userDetail.getNickname());
         } else {
             userBuilder.reserve(Collections.emptyMap());
         }
@@ -210,6 +219,7 @@ public class User implements UserDetails, CredentialsContainer {
     public static class UserBuilder {
         private String username;
         private String password;
+        private String nickname;
         private List<GrantedAuthority> authorities;
         private boolean accountExpired;
         private boolean accountLocked;
@@ -226,6 +236,13 @@ public class User implements UserDetails, CredentialsContainer {
             this.username = username;
             return this;
         }
+
+        public pers.wesley.common.security.User.UserBuilder nickname(String nickname) {
+            Assert.notNull(nickname, "nickname cannot be null");
+            this.nickname = nickname;
+            return this;
+        }
+
 
         public pers.wesley.common.security.User.UserBuilder password(String password) {
             Assert.notNull(password, "password cannot be null");
@@ -280,7 +297,7 @@ public class User implements UserDetails, CredentialsContainer {
 
         public UserDetails build() {
             String encodedPassword = this.passwordEncoder.apply(password);
-            return new pers.wesley.common.security.User(username, encodedPassword, !disabled, !accountExpired,
+            return new pers.wesley.common.security.User(username, encodedPassword, nickname, !disabled, !accountExpired,
                     !credentialsExpired, !accountLocked, authorities, reserve);
         }
     }

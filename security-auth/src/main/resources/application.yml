@@ -27,6 +27,6 @@ pers:
         kaptcha.textproducer.char.length: 4
     jwt:
       ## 单位秒
-      expire-time: 120
+      expire-time: 360
       sign-key: E10ADC3949BA59ABBE56E057F20F883E
       des-key: 12345678

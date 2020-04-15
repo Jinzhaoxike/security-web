@@ -7,6 +7,7 @@ import org.slf4j.helpers.MessageFormatter;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -56,6 +57,16 @@ public class ErrorResponse implements Serializable {
      */
     public static ErrorResponse of(String errorCode, String message, String ...args) {
         return of(errorCode, MessageFormatter.arrayFormat(message, args).getMessage());
+    }
+
+    public String toJson() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{");
+        stringBuilder.append("\"errorCode\"").append(":").append("\"").append(getErrorCode()).append("\",");
+        stringBuilder.append("\"errorMsg\"").append(":").append("\"").append(getErrorMsg()).append("\",");
+        stringBuilder.append("\"timestamp\"").append(":").append("\"").append(getTimestamp()).append("\"");
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 
     /**
