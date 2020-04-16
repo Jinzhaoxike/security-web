@@ -69,15 +69,15 @@ public class JwtTokenGenerate {
         try {
             claimsJws = Jwts.parser().setSigningKey(jwtProperties.getSignKey()).parseClaimsJws(token);
         } catch (ExpiredJwtException expiredJwtException) {
-            throw new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, new String[] {"token已过期"});
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, new String[] {"token已过期"});
         } catch (UnsupportedJwtException e) {
-            throw new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, new String[] {"token签名方式不支持"});
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, new String[] {"token签名方式不支持"});
         } catch (MalformedJwtException e) {
-            throw new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, new String[] {"token格式错误"});
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, new String[] {"token格式错误"});
         } catch (SignatureException e) {
-            throw new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, new String[] {"token验签错误"});
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, new String[] {"token验签错误"});
         } catch (IllegalArgumentException e) {
-            throw new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, new String[] {"token验签key非法"});
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, new String[] {"token验签key非法"});
         }
 
         Claims claimsJwsBody = claimsJws.getBody();

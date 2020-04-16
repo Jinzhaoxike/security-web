@@ -17,9 +17,9 @@ import java.util.List;
 @Getter
 public class CorsProperties {
 
-    private String allowOrigin = "*";
+    private List<String> allowOrigin = Arrays.asList("*");
 
-    private String allowMethods = "*";
+    private List<String> allowMethods = Arrays.asList("*");
 
     private Long maxAges = 18000L;
 

@@ -14,8 +14,6 @@ pers:
       - '/login'
       - '/captcha/image'
       - '/captcha/sms'
-    cors:
-      enabled: true
     captcha:
       image:
         ## 单位秒

@@ -3,7 +3,6 @@ package pers.wesley.webflux.filter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -70,10 +69,12 @@ public class AuthorizationWebFilter implements WebFilter {
     }
 
     private Mono<Authentication> convert(ServerWebExchange exchange) {
-        ServerHttpRequest serverHttpRequest = exchange.getRequest();
-        String token = serverHttpRequest.getHeaders().getFirst(JWT_TOKEN_HEADER_PARAM);
-        if (StringUtils.isEmpty(token) || !token.startsWith(HEADER_PREFIX)) {
-            return Mono.empty();
+        String token = exchange.getRequest().getHeaders().getFirst(JWT_TOKEN_HEADER_PARAM);
+        if (StringUtils.isEmpty(token)) {
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, "[X-Authorization]不存在");
+        }
+        if (!token.startsWith(HEADER_PREFIX)) {
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, "[X-Authorization]格式错误");
         }
         return Mono.just(jwtTokenGenerate.parseToken(token.substring(HEADER_PREFIX.length())));
     }
@@ -82,7 +83,7 @@ public class AuthorizationWebFilter implements WebFilter {
 
         String path = exchange.getRequest().getURI().getPath();
         if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority(path))) {
-            throw new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "无访问权限");
+            throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, "无访问权限");
         }
 
         WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);

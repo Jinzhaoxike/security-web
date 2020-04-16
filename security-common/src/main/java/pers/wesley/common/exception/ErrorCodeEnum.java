@@ -52,9 +52,13 @@ public enum ErrorCodeEnum {
      */
     JSON_ERROR("json转换错误"),
     /**
-     * 鉴权错误
+     * 身份认证错误
      */
-    AUTHENTICATION_ERROR("鉴权错误，{}");
+    AUTHENTICATION_ERROR("身份认证认证错误，{}"),
+    /**
+     * 权限认证错误
+     */
+    AUTHORIZATION_ERROR("权限认证错误，{}");
 
     private String message;
 

@@ -10,7 +10,6 @@ import org.springframework.security.authentication.DelegatingReactiveAuthenticat
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -24,11 +23,13 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.StringUtils;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.server.ServerWebExchange;
+import pers.wesley.common.CorsProperties;
 import pers.wesley.common.SecurityProperties;
 import pers.wesley.common.jwt.JwtTokenGenerate;
 import pers.wesley.common.security.User;
-import pers.wesley.webflux.filter.AuthorizationWebFilter;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -41,13 +42,15 @@ import java.util.Map;
  */
 @Configuration
 @EnableWebFluxSecurity
-@EnableConfigurationProperties(value = {SecurityProperties.class})
+@EnableConfigurationProperties(value = {SecurityProperties.class, CorsProperties.class})
 public class SecurityWebfluxConfiguration {
 
     private SecurityProperties securityProperties;
+    private CorsProperties corsProperties;
 
-    public SecurityWebfluxConfiguration(SecurityProperties securityProperties) {
+    public SecurityWebfluxConfiguration(SecurityProperties securityProperties, CorsProperties corsProperties) {
         this.securityProperties = securityProperties;
+        this.corsProperties = corsProperties;
     }
 
     @Bean
@@ -56,14 +59,29 @@ public class SecurityWebfluxConfiguration {
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
+                .cors().configurationSource(corsConfigurationSource())
+                .and()
                 .authorizeExchange()
                 .pathMatchers(securityProperties.getPermitUrl().toArray(new String[securityProperties.getPermitUrl().size()])).permitAll()
                 .and()
-                .addFilterAt(new AuthorizationWebFilter(securityProperties, jwtTokenGenerate), SecurityWebFiltersOrder.AUTHORIZATION)
+//                .addFilterAt(new AuthorizationWebFilter(securityProperties, jwtTokenGenerate), SecurityWebFiltersOrder.AUTHORIZATION)
                 .authorizeExchange()
                 .anyExchange()
                 .authenticated();
         return  httpSecurity.build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        return exchange -> {
+            CorsConfiguration corsConfiguration = new CorsConfiguration();
+            corsConfiguration.setAllowedOrigins(corsProperties.getAllowOrigin());
+            corsConfiguration.setAllowedHeaders(corsProperties.getAllowHeaders());
+            corsConfiguration.setAllowedMethods(corsProperties.getAllowMethods());
+            corsConfiguration.setExposedHeaders(corsProperties.getExposedHeaders());
+            corsConfiguration.setMaxAge(corsProperties.getMaxAges());
+            return corsConfiguration;
+        };
     }
 
     @Bean
