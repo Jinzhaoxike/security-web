@@ -3,8 +3,10 @@ package pers.wesley.webflux.filter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -20,7 +22,12 @@ import pers.wesley.common.exception.BaseException;
 import pers.wesley.common.exception.ErrorCodeEnum;
 import pers.wesley.common.exception.ErrorResponse;
 import pers.wesley.common.jwt.JwtTokenGenerate;
+import pers.wesley.common.security.PermissionUriConfiguration;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * @Description : 权限校验
@@ -81,8 +88,21 @@ public class AuthorizationWebFilter implements WebFilter {
 
     private Mono<Void> authorization(ServerWebExchange exchange, WebFilterChain chain, Authentication authentication) {
 
-        String path = exchange.getRequest().getURI().getPath();
-        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority(path))) {
+        ServerHttpRequest request = exchange.getRequest();
+
+        Optional<? extends GrantedAuthority> optionalGrantedAuthority = authentication.getAuthorities()
+                .stream()
+                .filter(grantedAuthority -> {
+                    List<PermissionUriConfiguration.UrlFunction> urlFunctions = PermissionUriConfiguration.get(grantedAuthority.getAuthority());
+                    return urlFunctions.stream().filter(urlFunction -> {
+                        Pattern compile = Pattern.compile(urlFunction.getUri());
+                        return request.getMethod().matches(urlFunction.getMethod())
+                                && compile.matcher(request.getURI().getPath()).find();
+                    }).findAny().isPresent();
+
+                }).findAny();
+
+        if (!optionalGrantedAuthority.isPresent()) {
             throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, "无访问权限");
         }
 

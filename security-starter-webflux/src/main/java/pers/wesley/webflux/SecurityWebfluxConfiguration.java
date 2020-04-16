@@ -10,6 +10,7 @@ import org.springframework.security.authentication.DelegatingReactiveAuthenticat
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -30,6 +31,7 @@ import pers.wesley.common.CorsProperties;
 import pers.wesley.common.SecurityProperties;
 import pers.wesley.common.jwt.JwtTokenGenerate;
 import pers.wesley.common.security.User;
+import pers.wesley.webflux.filter.AuthorizationWebFilter;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -64,7 +66,7 @@ public class SecurityWebfluxConfiguration {
                 .authorizeExchange()
                 .pathMatchers(securityProperties.getPermitUrl().toArray(new String[securityProperties.getPermitUrl().size()])).permitAll()
                 .and()
-//                .addFilterAt(new AuthorizationWebFilter(securityProperties, jwtTokenGenerate), SecurityWebFiltersOrder.AUTHORIZATION)
+                .addFilterAt(new AuthorizationWebFilter(securityProperties, jwtTokenGenerate), SecurityWebFiltersOrder.AUTHORIZATION)
                 .authorizeExchange()
                 .anyExchange()
                 .authenticated();
@@ -100,7 +102,7 @@ public class SecurityWebfluxConfiguration {
             UserDetails userDetails = User
                     .withUsername("admin")
                     .nickname("管理员")
-                    .authorities("/user/permission/read", "/user/info")
+                    .authorities("/user/read")
                     .password("123456")
                     .passwordEncoder(bCryptPasswordEncoder::encode)
                     .reserve(reserve)
