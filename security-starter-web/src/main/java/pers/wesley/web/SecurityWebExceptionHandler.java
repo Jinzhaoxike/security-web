@@ -1,9 +1,8 @@
-package pers.wesley.webflux;
+package pers.wesley.web;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,42 +11,40 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
-import org.springframework.web.server.ServerWebExchange;
 import pers.wesley.common.exception.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @Description : 统一异常处理
  * @Author : jinzhaoxike91@outlook.com
- * @Create : 2020/04/08 14:12
+ * @Create : 2020/05/11 11:31
  */
 @ControllerAdvice
 @Slf4j
-public class SecurityWebfluxExceptionHandler {
-
+public class SecurityWebExceptionHandler {
     @ExceptionHandler(BaseException.class)
     @ResponseBody
-    public ErrorResponse baseException(BaseException baseException, ServerWebExchange exchange) {
-        ServerHttpResponse response = exchange.getResponse();
+    public ErrorResponse baseException(BaseException baseException, HttpServletResponse response) {
         if (baseException instanceof NotFoundException) {
-            response.setStatusCode(HttpStatus.NOT_FOUND);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
         } else if (baseException instanceof ExistsException) {
-            response.setStatusCode(HttpStatus.CONFLICT);
+            response.setStatus(HttpStatus.CONFLICT.value());
         } else if (baseException instanceof NetworkConnectionException) {
-            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         } else {
-            response.setStatusCode(HttpStatus.BAD_REQUEST);
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         return ErrorResponse.of(baseException);
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
     @ResponseBody
-    public ErrorResponse handLerMethodArgumentNotValidException(WebExchangeBindException exception, ServerWebExchange exchange) {
+    public ErrorResponse handLerMethodArgumentNotValidException(WebExchangeBindException exception, HttpServletResponse response) {
         FieldError fieldError = exception.getFieldErrors().stream().findFirst().get();
-        ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.BAD_REQUEST);
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         return ErrorResponse.of(ErrorCodeEnum.PARAMETER_ERROR.name(),
                 ErrorCodeEnum.PARAMETER_ERROR.getMessage(),
                 fieldError.getField(),
@@ -56,20 +53,18 @@ public class SecurityWebfluxExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    public ErrorResponse exception(Exception exception, ServerWebExchange exchange) {
+    public ErrorResponse exception(Exception exception, HttpServletResponse response) {
         log.error("系统异常", exception);
-        ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         return ErrorResponse.of(exception);
     }
 
     @ExceptionHandler(AuthenticationException.class)
     @ResponseBody
-    public ErrorResponse exception(AuthenticationException e, ServerWebExchange exchange) {
-        ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    public ErrorResponse exception(AuthenticationException e, HttpServletResponse response) {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         BaseException be;
         if (e instanceof BadCredentialsException) {
             be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "用户名或密码错误", e);

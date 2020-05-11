@@ -1,4 +1,4 @@
-package pers.wesley.controller;
+package pers.wesley.webflux.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * @Description :
  * @Author : jinzhaoxike91@outlook.com
- * @Create : 2020/04/08 13:49
+ * @Create : 2020/05/11 10:47
  */
 @RestController
 @Slf4j
@@ -49,11 +49,12 @@ public class LoginController {
                     LoginResponseVO loginResponseVO = new LoginResponseVO();
                     loginResponseVO.setToken(jwtTokenGenerate.getToken("1", loginRequestVO.getUsername(), user.getNickname(), permissions, user.getReserve()));
                     return Mono.just(loginResponseVO);
-        });
+                });
     }
 
     @GetMapping(value = "/user/info")
     public Mono<String> getINfo() {
+
         return Mono.just("admin");
     }
 }

@@ -21,11 +21,12 @@
         <module>security-common</module>
         <module>security-auth</module>
         <module>security-starter-webflux</module>
+        <module>security-starter-web</module>
     </modules>
 
     <properties>
         <java.version>1.8</java.version>
-        <swagger.version>2.2.2</swagger.version>
+        <swagger.version>2.9.2</swagger.version>
         <kaptcha.version>2.3.2</kaptcha.version>
     </properties>
 
