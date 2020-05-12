@@ -3,7 +3,6 @@ package pers.wesley;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.*;
@@ -13,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description :
+ * @Description : 事务配置
  * @Author : jinzhaoxike91@outlook.com
  * @Create : 2020/04/26 13:35
  */

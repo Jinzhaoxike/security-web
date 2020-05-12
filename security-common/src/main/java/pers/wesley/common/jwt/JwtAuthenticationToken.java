@@ -7,7 +7,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import java.util.Collection;
 
 /**
- * @Description :
+ * @Description : jwt授权token
  * @Author : jinzhaoxike91@outlook.com
  * @Create : 2020/04/15 11:12
  */

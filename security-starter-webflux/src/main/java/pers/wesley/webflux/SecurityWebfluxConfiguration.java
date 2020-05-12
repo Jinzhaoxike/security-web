@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description : SecurityWebflux配置
+ * @Description : 安全校验配置
  * @Author : jinzhaoxike91@outlook.com
  * @Create : 2020/04/08 10:46
  */

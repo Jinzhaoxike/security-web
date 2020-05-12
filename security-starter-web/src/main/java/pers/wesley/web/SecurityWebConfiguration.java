@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @Description :
+ * @Description : 安全校验配置
  * @Author : jinzhaoxike91@outlook.com
  * @Create : 2020/05/11 10:16
  */
