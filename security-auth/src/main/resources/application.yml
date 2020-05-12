@@ -7,17 +7,20 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       connection-properties: druid.stat.mergeSql=true
-    url: jdbc:mysql://127.0.0.1:3306/security-web?useUnicode=true&characterEncoding=utf-8&verifyServerCertificate=false&useSSL=false&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://192.168.214.13:3306/utp-manage-ksb?useUnicode=true&characterEncoding=utf-8&verifyServerCertificate=false&useSSL=false&zeroDateTimeBehavior=convertToNull
     username: root
-    password: 123456
+    password: dwxxkj=123
   http:
     encoding:
       charset: utf-8
+      force: true
+      enabled: true
 logging:
   level:
     ## 打印请求及应答日志
     org.springframework.http.codec.json.Jackson2JsonDecoder: debug
     org.springframework.http.codec.json.Jackson2JsonEncoder: debug
+    pers.wesley.web.SecurityWebConfiguration: debug
 ##
 pers:
   security:

@@ -2,7 +2,6 @@ package pers.wesley.web;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,7 +34,6 @@ public class SecurityWebExceptionHandler {
         } else {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         return ErrorResponse.of(baseException);
     }
 
@@ -44,7 +42,6 @@ public class SecurityWebExceptionHandler {
     public ErrorResponse handLerMethodArgumentNotValidException(WebExchangeBindException exception, HttpServletResponse response) {
         FieldError fieldError = exception.getFieldErrors().stream().findFirst().get();
         response.setStatus(HttpStatus.BAD_REQUEST.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         return ErrorResponse.of(ErrorCodeEnum.PARAMETER_ERROR.name(),
                 ErrorCodeEnum.PARAMETER_ERROR.getMessage(),
                 fieldError.getField(),
@@ -56,7 +53,6 @@ public class SecurityWebExceptionHandler {
     public ErrorResponse exception(Exception exception, HttpServletResponse response) {
         log.error("系统异常", exception);
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         return ErrorResponse.of(exception);
     }
 
@@ -64,7 +60,6 @@ public class SecurityWebExceptionHandler {
     @ResponseBody
     public ErrorResponse exception(AuthenticationException e, HttpServletResponse response) {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         BaseException be;
         if (e instanceof BadCredentialsException) {
             be = new BaseException(ErrorCodeEnum.AUTHENTICATION_ERROR, "用户名或密码错误", e);

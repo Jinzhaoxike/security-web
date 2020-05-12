@@ -22,6 +22,7 @@ import pers.wesley.common.exception.ErrorCodeEnum;
 import pers.wesley.common.exception.ErrorResponse;
 import pers.wesley.common.jwt.JwtTokenGenerate;
 import pers.wesley.common.security.PermissionUriConfiguration;
+import pers.wesley.common.security.WebPathAuthorizationValidator;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -89,18 +90,7 @@ public class AuthorizationWebFilter implements WebFilter {
 
         ServerHttpRequest request = exchange.getRequest();
 
-        Optional<? extends GrantedAuthority> optionalGrantedAuthority = authentication.getAuthorities()
-                .stream()
-                .filter(grantedAuthority -> {
-                    List<PermissionUriConfiguration.UrlFunction> urlFunctions = PermissionUriConfiguration.get(grantedAuthority.getAuthority());
-                    return urlFunctions.stream().filter(urlFunction -> {
-                        Pattern compile = Pattern.compile(urlFunction.getUri());
-                        return request.getMethod().matches(urlFunction.getMethod())
-                                && compile.matcher(request.getURI().getPath()).find();
-                    }).findAny().isPresent();
-
-                }).findAny();
-
+        Optional<? extends GrantedAuthority> optionalGrantedAuthority = WebPathAuthorizationValidator.authorization(request.getURI().getPath(), request.getMethod().name(), authentication.getAuthorities());
         if (!optionalGrantedAuthority.isPresent()) {
             throw new BaseException(ErrorCodeEnum.AUTHORIZATION_ERROR, "无访问权限");
         }

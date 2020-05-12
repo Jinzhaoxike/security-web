@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,7 +16,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,16 +34,14 @@ import pers.wesley.common.exception.ErrorCodeEnum;
 import pers.wesley.common.exception.ErrorResponse;
 import pers.wesley.common.jwt.JwtAuthenticationToken;
 import pers.wesley.common.jwt.JwtTokenGenerate;
-import pers.wesley.common.security.PermissionUriConfiguration;
 import pers.wesley.common.security.User;
+import pers.wesley.common.util.LoggerUtils;
 import pers.wesley.web.filter.NegatedRequestMatcher;
 
-import java.nio.charset.Charset;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -104,9 +100,9 @@ public class SecurityWebConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(securityProperties.getPermitUrl().toArray(new String[securityProperties.getPermitUrl().size()])).permitAll()
+                .anyRequest().access("@securityWebPathAccessAuthorization.authorization(authentication, request)")
                 .and()
-                .addFilterAfter(customAuthenticationFilter(this.authenticationManager()), CorsFilter.class)
-        ;
+                .addFilterAfter(customAuthenticationFilter(this.authenticationManager()), CorsFilter.class);
     }
 
     @Override
@@ -123,9 +119,7 @@ public class SecurityWebConfiguration extends WebSecurityConfigurerAdapter {
     AuthenticationConverter authenticationConverter() {
         return request -> {
             String token = request.getHeader(JWT_TOKEN_HEADER_PARAM);
-            if (log.isDebugEnabled()) {
-                log.debug("X-Authorization = [{}]", token);
-            }
+            LoggerUtils.debug(log, "X-Authorization = [{}]", () -> token);
             if (StringUtils.isEmpty(token)) {
                 throw new AuthenticationCredentialsNotFoundException("[X-Authorization]不存在");
             }
@@ -134,26 +128,13 @@ public class SecurityWebConfiguration extends WebSecurityConfigurerAdapter {
             }
             try {
                 Authentication authentication = jwtTokenGenerate.parseToken(token.substring(HEADER_PREFIX.length()));
-                // 资源权限校验
-                Optional<? extends GrantedAuthority> optionalGrantedAuthority = authentication.getAuthorities()
-                        .stream()
-                        .filter(grantedAuthority -> {
-                            List<PermissionUriConfiguration.UrlFunction> urlFunctions = PermissionUriConfiguration.get(grantedAuthority.getAuthority());
-                            return urlFunctions.stream().filter(urlFunction -> {
-                                Pattern compile = Pattern.compile(urlFunction.getUri());
-                                return request.getMethod().matches(urlFunction.getMethod())
-                                        && compile.matcher(request.getRequestURI()).find();
-                            }).findAny().isPresent();
-                        }).findAny();
-                if (!optionalGrantedAuthority.isPresent()) {
-                    throw new AuthenticationServiceException("无访问权限");
-                }
                 return authentication;
             } catch (BaseException e) {
                 throw new AuthenticationCredentialsNotFoundException(e.getMessage());
             }
         };
     }
+
 
     @Bean
     AuthenticationFilter customAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -162,10 +143,20 @@ public class SecurityWebConfiguration extends WebSecurityConfigurerAdapter {
         NegatedRequestMatcher negatedRequestMatcher = new NegatedRequestMatcher(requestMatchers);
         authenticationFilter.setRequestMatcher(negatedRequestMatcher);
         // 必须提供SuccessHandler，否则会出现 Cannot call sendError() after the response has been committed
-        authenticationFilter.setSuccessHandler((request, response, authentication) -> {});
+        authenticationFilter.setSuccessHandler((request, response, authentication) -> LoggerUtils.debug(log, "请求报文 url=[{}],method=[{}],body=[{}]", () -> request.getRequestURI(), () -> request.getMethod(), () -> {
+            Enumeration<String> parameterNames = request.getParameterNames();
+            StringBuilder stringBuilder = new StringBuilder();
+            while (parameterNames.hasMoreElements()) {
+                String name = parameterNames.nextElement();
+                if (stringBuilder.length() > 0) {
+                    stringBuilder.append(",");
+                }
+                stringBuilder.append(name).append("=").append(request.getParameter(name));
+            }
+            return stringBuilder;
+        }));
         authenticationFilter.setFailureHandler((request, response, exception) -> {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setCharacterEncoding(Charset.defaultCharset().toString());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
             BaseException be;
